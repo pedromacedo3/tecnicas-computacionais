@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refletindo sobre a IA</title>
+    <style>
+        /* Estilos Globais e Gerais (style.css) */
+        :root {
+            --cor-fundo: #121214;
+            --cor-principal: #1f1f23;
+            --cor-texto: #e1e1e6;
+            --cor-destaque: #8257e5;
+            --cor-destaque-hover: #996dff;
+            --cor-borda: #29292e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .caixa-principal {
+            background-color: var(--cor-principal);
+            border: 1px solid var(--cor-borda);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #ffffff;
+        }
+
+        .caixa-perguntas {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            min-height: 60px;
+        }
+
+        .caixa-alternativas {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: var(--cor-destaque);
+            color: #ffffff;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--cor-destaque-hover);
+            transform: translateY(-2px);
+        }
+
+        .caixa-resultado {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--cor-borda);
+            text-align: left;
+        }
+
+        .caixa-resultado.mostrar {
+            display: block;
+        }
+
+        .texto-resultado {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #a8a8b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="caixa-principal">
+        <h1>Refletindo sobre a Inteligência Artificial</h1>
+        <div class="caixa-perguntas"></div>
+        <div class="caixa-alternativas"></div>
+        <div class="caixa-resultado">
+            <p class="texto-resultado"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Funções Utilitárias (aleatorio.js) ---
+        function aleatorio(lista) {
+            const posicao = Math.floor(Math.random() * lista.length);
+            return lista[posicao];
+        }
+
+        // --- 2. Base de Dados de Perguntas (perguntas.js) ---
+        const perguntas = [
+            {
+                enunciado: "Assim que saiu da escola, você depara-se com uma nova tecnologia: um chat que responde a todas as dúvidas e gera imagens e áudios hiper-realistas. Qual é o seu primeiro pensamento?",
+                alternativas: [
+                    {
+                        texto: "Isso é assustador!",
+                        afirmacao: "Ficou com receio em relação ao avanço acelerado da tecnologia."
+                    },
+                    {
+                        texto: "Isso é maravilhoso!",
+                        afirmacao: "Quereu aprender imediatamente como utilizar a IA no seu dia a dia."
+                    }
+                ]
+            },
+            {
+                enunciado: "A sua professora de tecnologia pediu um trabalho sobre o impacto da IA na sociedade. Como decide realizar a pesquisa?",
+                alternativas: [
+                    {
+                        texto: "Utiliza uma ferramenta de IA para gerar o texto e depois faz ajustes pessoais.",
+                        afirmacao: "Aprendeu a utilizar a IA como uma ferramenta de apoio ao trabalho criativo."
+                    },
+                    {
+                        texto: "Escreve o trabalho com base em livros e artigos online sem recorrer à IA.",
+                        afirmacao: "Preferiu manter uma abordagem tradicional de pesquisa e escrita."
+                    }
+                ]
+            },
+            {
+                enunciado: "Num debate em sala de aula sobre o futuro do trabalho com a IA, qual é o seu posicionamento?",
+                alternativas: [
+                    {
+                        texto: "Defende que a IA criará novas oportunidades e novas profissões.",
+                        afirmacao: "Acredita na adaptação humana e na colaboração entre homens e máquinas."
+                    },
+                    {
+                        texto: "Preocupa-se com a substituição de trabalhadores e a perda de empregos.",
+                        afirmacao: "Preocupa-se com os impactos sociais e a automação de funções digitais."
+                    }
+                ]
+            }
+        ];
+
+        // --- 3. Lógica Principal da Aplicação (script.js) ---
+        const caixaPerguntas = document.querySelector(".caixa-perguntas");
+        const caixaAlternativas = document.querySelector(".caixa-alternativas");
+        const caixaResultado = document.querySelector(".caixa-resultado");
+        const textoResultado = document.querySelector(".texto-resultado");
+
+        let atual = 0;
+        let perguntaAtual;
+        let historiaFinal = "";
+
+        function mostraPergunta() {
+            if (atual >= perguntas.length) {
+                mostraResultado();
+                return;
+            }
+            perguntaAtual = perguntas[atual];
+            caixaPerguntas.textContent = perguntaAtual.enunciado;
+            caixaAlternativas.textContent = "";
+            mostraAlternativas();
+        }
+
+        function mostraAlternativas() {
+            for (const alternativa of perguntaAtual.alternativas) {
+                const botaoAlternativas = document.createElement("button");
+                botaoAlternativas.textContent = alternativa.texto;
+                botaoAlternativas.addEventListener("click", () => respostaSelecionada(alternativa));
+                caixaAlternativas.appendChild(botaoAlternativas);
+            }
+        }
+
+        function respostaSelecionada(opcaoSelecionada) {
+            const afirmacoes = opcaoSelecionada.afirmacao;
+            historiaFinal += afirmacoes + " ";
+            atual++;
+            mostraPergunta();
+        }
+
+        function mostraResultado() {
+            caixaPerguntas.textContent = "Em resumo, as suas escolhas indicam que:";
+            caixaAlternativas.textContent = "";
+            textoResultado.textContent = historiaFinal;
+            caixaResultado.classList.add("mostrar");
+        }
+
+        // Iniciar a aplicação
+        mostraPergunta();
+    </script>
+</body>
+</html>
